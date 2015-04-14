@@ -1,5 +1,7 @@
 # Death-by-the-Second
-Death location parsing. Uncomment the bottom line to test it out! Given a time in epoch seconds which works with the URF endpoint, a number of runs, and an interval (default to 1 minute), the call to main_parse will create a .swf of the deaths in the game, based on the specified interval.
+Death location parsing. Uncomment the bottom line to test it out! 
+
+Given a time in epoch seconds which works with the URF endpoint, a number of runs, and an interval (default to 1 minute), the call to main_parse will create a .swf of the deaths in the game, with the frames based on the specified interval.
 
 Note that https://s3-us-west-1.amazonaws.com/riot-api/img/minimap-mh.png must be in the path for overlaying.
 
