@@ -131,6 +131,7 @@ def draw_deaths(images, x, y, victim, time, interval):
 
 def set_images(images, time, interval):
     """
+    Prepares frames if there aren't enough to represent the current time.
     :param images: The list of images being mapped.
     :param time: Timestamp value.
     :param interval: The sampling duration.
