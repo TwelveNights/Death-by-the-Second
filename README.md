@@ -1,5 +1,5 @@
 # Death-by-the-Second
-Death location parsing. Uncomment the bottom line to test it out! 
+Death location parsing. Uncomment the bottom line to test it out! Additionally, you can find a product with 5 second intervals over the course of one bucket of games at https://drive.google.com/file/d/0B3Wig6ukVmdlREEySDYydHBMRHc/view?usp=sharinghttps://drive.google.com/file/d/0B3Wig6ukVmdlREEySDYydHBMRHc/view?usp=sharing.
 
 Given a time in epoch seconds which works with the URF endpoint, a number of runs, and an interval (default to 1 minute), the call to main_parse will create a .swf of the deaths in the game, with the frames based on the specified interval.
 
