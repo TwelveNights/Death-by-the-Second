@@ -154,4 +154,4 @@ def death_swf(images):
 
 
 # Uncomment to test
-# main_parse(1428825600, 1, 60000)
+# main_parse(1428825600, 1)
