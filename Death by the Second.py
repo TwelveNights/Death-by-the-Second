@@ -105,6 +105,8 @@ def draw_deaths(images, x, y, victim, time, interval):
                   map_size - y / scale + r),
                  fill=color)
 
+    del draw
+
     print("Plotted at {}.".format(i))
 
     images[i] = Image.alpha_composite(image, im)
@@ -125,6 +127,7 @@ def add_timestamp(images, interval):
                                          seconds % 10),
                   font=font)
         del draw
+
 
 def set_images(images, time, interval):
     """
