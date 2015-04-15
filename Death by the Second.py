@@ -2,16 +2,16 @@ __author__ = 'JackelPPA'
 
 import ast
 import requests
-from math import ceil, floor
+from math import ceil
 from PIL import Image, ImageDraw, ImageFont
 from visvis.vvmovie import images2swf
 
 
 # Riot API Key
-key = "SECRET_KEY"
+key = open("key").read()
 
 # Constants
-size = 2
+size = 1
 dot_opacity = 100
 map_size, scale = int(512 / size), 30 * size
 r = 4
@@ -35,6 +35,8 @@ def main_parse(epoch, matches, interval=60000):
 
     for g in games:
         images = death_parsing(images, g, interval)
+
+    add_timestamp(images, interval)
 
     death_swf([Image.alpha_composite(mini_map, image) for image in images])
 
@@ -76,69 +78,64 @@ def draw_deaths(images, x, y, victim, time, interval):
     :param interval: The sampling duration.
     :return: Returns a set of images, with the image mapped.
     """
-    font = ImageFont.truetype("C:/Windows/Fonts/ariblk.ttf", 12)
+
+    # Checks for if the index of frames fits with the timestamp of the death
     images = set_images(images, time, interval)
-    x_off, y_off = 570, 420
-    x += x_off
-    y += y_off
 
-    for i, image in enumerate(images):
-        if time <= i * interval <= time + 2 * interval:
-            im = Image.new('RGBA', (map_size, map_size))
-            draw = ImageDraw.Draw(im, "RGBA")
-            if victim <= 5:
-                color = (0, 0, 255, dot_opacity)
-            else:
-                color = (255, 0, 0, dot_opacity)
+    # Offset correction
+    x += 570
+    y += 420
 
-            draw.ellipse((x / scale - r,
-                          map_size - y / scale - r,
-                          x / scale + r,
-                          map_size - y / scale + r),
-                         fill=color)
+    i = time // interval
+    image = images[i]
 
-            minutes = floor(i * interval / 60000)
-            seconds = (i * interval / 1000) % 60
-            draw.text((0, map_size - 24),
-                      "{0}{1}:{2}{3}".format(floor(minutes / 10),
-                                             round(minutes % 10),
-                                             floor(seconds / 10),
-                                             round(seconds % 10)),
-                      font=font)
-            del draw
+    # for i, image in enumerate(images):
+    # if time <= i * interval <= time + 2 * interval:
+    im = Image.new('RGBA', (map_size, map_size))
+    draw = ImageDraw.Draw(im, "RGBA")
+    if victim <= 5:
+        color = (0, 0, 255, dot_opacity)
+        print("Plotted at {}.".format(i))
+    else:
+        color = (255, 0, 0, dot_opacity)
 
-            print("Plotted at {}.".format(i))
+    draw.ellipse((x / scale - r,
+                  map_size - y / scale - r,
+                  x / scale + r,
+                  map_size - y / scale + r),
+                 fill=color)
 
-            images[i] = Image.alpha_composite(image, im)
+    print("Plotted at {}.".format(i))
 
-        else:
-            im = Image.new('RGBA', (map_size, map_size))
-            draw = ImageDraw.Draw(im, "RGBA")
-            minutes = floor(i * interval / 60000)
-            seconds = (i * interval / 1000) % 60
-            draw.text((0, map_size - 24),
-                      "{0}{1}:{2}{3}".format(floor(minutes / 10),
-                                             round(minutes % 10),
-                                             floor(seconds / 10),
-                                             round(seconds % 10)),
-                      font=font)
-            del draw
-
-            images[i] = Image.alpha_composite(image, im)
+    images[i] = Image.alpha_composite(image, im)
 
     return images
 
 
+def add_timestamp(images, interval):
+    font = ImageFont.truetype("C:/Windows/Fonts/ariblk.ttf", 12)
+    for i, image in enumerate(images):
+        draw = ImageDraw.Draw(image, "RGBA")
+        minutes = i * interval // 60000
+        seconds = i * interval // 1000 % 60
+        draw.text((0, map_size - 24),
+                  "{0}{1}:{2}{3}".format(minutes // 10,
+                                         minutes % 10,
+                                         seconds // 10,
+                                         seconds % 10),
+                  font=font)
+        del draw
+
 def set_images(images, time, interval):
     """
-    Prepares frames if there aren't enough to represent the current time.
     :param images: The list of images being mapped.
     :param time: Timestamp value.
     :param interval: The sampling duration.
     :return: The images parameter, either lengthened or unmodified
     """
-    if time / interval >= len(images):
-        extras = ceil(time / interval) - len(images) + 1
+    seconds_time = time // interval
+    if seconds_time >= len(images):
+        extras = ceil(seconds_time) - len(images) + 1
         for x in range(extras):
             images.append(Image.new('RGBA', (map_size, map_size)))
         return images
@@ -154,5 +151,4 @@ def death_swf(images):
     print("SWF complete.")
 
 
-# Uncomment to test
-# main_parse(1428825600, 1)
+main_parse(1428825600, 12, 5000)
