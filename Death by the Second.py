@@ -2,6 +2,7 @@ __author__ = 'JackelPPA'
 
 import ast
 import requests
+import time
 from math import ceil
 from PIL import Image, ImageDraw, ImageFont
 from visvis.vvmovie import images2swf
@@ -29,9 +30,11 @@ def main_parse(epoch, matches, interval=60000):
     images = []
     games = []
     for m in range(matches):
+        print("Adding bucket {}.".format(m+1))
         url = "https://na.api.pvp.net/api/lol/na/v4.1/game/ids?beginDate={0}&api_key={1}".format(epoch + m * 300, key)
         request = requests.get(url)
         games += ast.literal_eval(request.text)
+        time.sleep(1)
 
     for g in games:
         images = death_parsing(images, g, interval)
@@ -55,61 +58,58 @@ def death_parsing(images, match, interval):
         frames = match_response.json()["timeline"]["frames"]
 
         for i in range(len(frames)):
-            if frames[i]["timestamp"] != 0:
-                for event in frames[i]["events"]:
-                    if event["eventType"] == "CHAMPION_KILL":
-                        y, x = event["position"]["y"], event["position"]["x"]
-                        victim = event["victimId"]
-                        time = event["timestamp"]
-                        images = draw_deaths(images, x, y, victim, time, interval)
-    else:
-        pass
+            if 'events' in frames[i]:
+                    for event in frames[i]["events"]:
+                        if event["eventType"] == "CHAMPION_KILL":
+                            y, x = event["position"]["y"], event["position"]["x"]
+                            victim = event["victimId"]
+                            timestamp = event["timestamp"]
+                            images = draw_deaths(images, (x, y), victim, timestamp, interval)
 
+    else:
+        print("Match code is {}, and unable to parse.".format(match_response.status_code))
+
+    time.sleep(.5)
     return images
 
 
-def draw_deaths(images, x, y, victim, time, interval):
+def draw_deaths(images, coord, victim, timestamp, interval):
     """
     :param images: The set of images to draw on.
-    :param x: x-Coordinate of death.
-    :param y: y-Coordinate of death.
+    :param coord = Tuple containing x, y coordinates
     :param victim: The individual killed.
-    :param time: Timestamp.
+    :param timestamp: Timestamp.
     :param interval: The sampling duration.
     :return: Returns a set of images, with the image mapped.
     """
 
     # Checks for if the index of frames fits with the timestamp of the death
-    images = set_images(images, time, interval)
+    images = set_images(images, timestamp, interval)
+    x, y = coord
 
     # Offset correction
     x += 570
     y += 420
 
-    i = time // interval
-    image = images[i]
+    for i, image in enumerate(images):
+        if timestamp <= i * interval <= timestamp + 2 * interval:
+            im = Image.new('RGBA', (map_size, map_size))
+            draw = ImageDraw.Draw(im, "RGBA")
+            if victim <= 5:
+                color = (0, 0, 255, dot_opacity)
+                print("Plotted at {}.".format(i))
+            else:
+                color = (255, 0, 0, dot_opacity)
 
-    # for i, image in enumerate(images):
-    # if time <= i * interval <= time + 2 * interval:
-    im = Image.new('RGBA', (map_size, map_size))
-    draw = ImageDraw.Draw(im, "RGBA")
-    if victim <= 5:
-        color = (0, 0, 255, dot_opacity)
-        print("Plotted at {}.".format(i))
-    else:
-        color = (255, 0, 0, dot_opacity)
+            draw.ellipse((x / scale - r,
+                          map_size - y / scale - r,
+                          x / scale + r,
+                          map_size - y / scale + r),
+                         fill=color)
 
-    draw.ellipse((x / scale - r,
-                  map_size - y / scale - r,
-                  x / scale + r,
-                  map_size - y / scale + r),
-                 fill=color)
+            del draw
 
-    del draw
-
-    print("Plotted at {}.".format(i))
-
-    images[i] = Image.alpha_composite(image, im)
+            images[i] = Image.alpha_composite(image, im)
 
     return images
 
@@ -129,14 +129,14 @@ def add_timestamp(images, interval):
         del draw
 
 
-def set_images(images, time, interval):
+def set_images(images, timestamp, interval):
     """
     :param images: The list of images being mapped.
-    :param time: Timestamp value.
+    :param timestamp: Timestamp value.
     :param interval: The sampling duration.
     :return: The images parameter, either lengthened or unmodified
     """
-    seconds_time = time // interval
+    seconds_time = timestamp // interval
     if seconds_time >= len(images):
         extras = ceil(seconds_time) - len(images) + 1
         for x in range(extras):
@@ -154,4 +154,4 @@ def death_swf(images):
     print("SWF complete.")
 
 # Uncomment to test
-# main_parse(1428825600, 1)
+# main_parse(1428825600, 12)
