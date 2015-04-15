@@ -15,8 +15,8 @@ key = open("key").read()
 size = 1
 dot_opacity = 100
 map_size, scale = int(512 / size), 30 * size
-r = 4
-frame_delay = .2
+r = 3
+frame_delay = .3
 mini_map = Image.open("minimap-mh.png").resize((map_size, map_size)).convert("RGBA")
 
 
@@ -154,4 +154,4 @@ def death_swf(images):
     print("SWF complete.")
 
 # Uncomment to test
-# main_parse(1428825600, 12)
+# main_parse(1428825600, 1)
