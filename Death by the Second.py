@@ -150,5 +150,5 @@ def death_swf(images):
     images2swf.writeSwf(file_name, images, duration=frame_delay, repeat=False)
     print("SWF complete.")
 
-
-main_parse(1428825600, 12, 5000)
+# Uncomment to test
+# main_parse(1428825600, 1)
