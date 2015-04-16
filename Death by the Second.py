@@ -2,7 +2,6 @@ __author__ = 'JackelPPA'
 
 import ast
 import requests
-import time
 from math import ceil
 from PIL import Image, ImageDraw, ImageFont
 from visvis.vvmovie import images2swf
