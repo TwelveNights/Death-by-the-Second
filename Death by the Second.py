@@ -15,8 +15,8 @@ key = open("key").read()
 size = 1
 dot_opacity = 100
 map_size, scale = int(512 / size), 30 * size
-r = 3
-frame_delay = .3
+r = 4
+frame_delay = .2
 mini_map = Image.open("minimap-mh.png").resize((map_size, map_size)).convert("RGBA")
 
 
@@ -34,7 +34,6 @@ def main_parse(epoch, matches, interval=60000):
         url = "https://na.api.pvp.net/api/lol/na/v4.1/game/ids?beginDate={0}&api_key={1}".format(epoch + m * 300, key)
         request = requests.get(url)
         games += ast.literal_eval(request.text)
-        time.sleep(1)
 
     for g in games:
         images = death_parsing(images, g, interval)
@@ -69,7 +68,6 @@ def death_parsing(images, match, interval):
     else:
         print("Match code is {}, and unable to parse.".format(match_response.status_code))
 
-    time.sleep(.5)
     return images
 
 
@@ -154,4 +152,4 @@ def death_swf(images):
     print("SWF complete.")
 
 # Uncomment to test
-# main_parse(1428825600, 1)
+# main_parse(1428822000, 1)
