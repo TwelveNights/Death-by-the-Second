@@ -8,7 +8,7 @@ from visvis.vvmovie import images2swf
 
 
 # Riot API Key
-key = open("key").read()
+key = open("key.txt").read()
 
 # Constants
 size = 1
