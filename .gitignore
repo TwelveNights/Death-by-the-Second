@@ -59,3 +59,4 @@ target/
 # Generated files
 *.swf
 *.txt
+/.idea/*
